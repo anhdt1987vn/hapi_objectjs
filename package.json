@@ -1,0 +1,20 @@
+{
+  "name": "tmp1",
+  "version": "1.0.0",
+  "description": "demo1",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "good": "^7.0.2",
+    "good-console": "^6.3.1",
+    "good-squeeze": "^5.0.1",
+    "hapi": "^15.2.0",
+    "knex": "^0.12.6",
+    "mysql": "^2.12.0",
+    "objection": "^0.6.2"
+  }
+}
