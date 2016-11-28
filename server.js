@@ -1,56 +1,40 @@
 'use strict';
 
-const Hapi = require('hapi');
-const Knex = require('knex');
-const Good = require('good');
+const Hoek = require('hoek');
+const Glue = require('glue');
+const Labbable = require('labbable');
+const Manifest = require('./manifest');
+const labbable = module.exports = new Labbable();
+const routes = require('./routes');
 
-var routes = require('./routes');
-var knexConfig = require('./knexfile');
-var Model = require('objection').Model;
+const options = {
+    relativeTo: __dirname
+};
 
+Glue.compose(Manifest, options, (err, server) => {
+    Hoek.assert(!err, err);
 
-// Create a server with a host and port
-const server = new Hapi.Server();
-server.connection({ 
-    host: 'localhost', 
-    port: 8000 
-});
+    // Pass server along to labbable
+    labbable.using(server);
 
+    // Add the route
+    server.route(routes);
 
-// Initialize knex.
-var knex = Knex(knexConfig.development);
-Model.knex(knex);
+    server.initialize((err) => {
+        console.log('Server START_1');
+        Hoek.assert(!err, err);
 
-// Add the route
-server.route(routes);
-
-server.register({
-    register: Good,
-    options: {
-        reporters: {
-            console: [{
-                module: 'good-squeeze',
-                name: 'Squeeze',
-                args: [{
-                    response: '*',
-                    log: '*'
-                }]
-            }, {
-                module: 'good-console' 
-            }, 'stdout']
+        // No need to start server if this is being required (i.e. for testing)
+        if (module.parent) {
+            console.log('Server START_2');
+            return;
         }
-    }
-}, (err) => {
 
-    if (err) {
-        throw err; // something bad happened loading the plugin
-    }
+        server.start((err) => {
 
-    server.start((err) => {
+            Hoek.assert(!err, err);
 
-        if (err) {
-            throw err;
-        }
-        server.log('info', 'Server running at: ' + server.info.uri);
+            console.log(`Server started at ${server.info.uri}`);
+        });
     });
 });
